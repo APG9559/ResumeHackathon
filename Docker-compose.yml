@@ -1,0 +1,43 @@
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: resume-screener-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=your-production-secret-key-change-this
+      - JWT_SECRET_KEY=your-production-jwt-secret-change-this
+      - DATABASE_URL=sqlite:///resume_screener.db
+    volumes:
+      - backend-data:/app/instance
+      - backend-uploads:/app/uploads
+    networks:
+      - resume-screener-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: resume-screener-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - resume-screener-network
+    restart: unless-stopped
+
+volumes:
+  backend-data:
+    driver: local
+  backend-uploads:
+    driver: local
+
+networks:
+  resume-screener-network:
+    driver: bridge
